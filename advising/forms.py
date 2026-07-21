@@ -1,6 +1,7 @@
 from django import forms
-from .models import Appointment, User
+from .models import Appointment, User, CaseLog
 
+# 1. Appointment Form for Students
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
@@ -15,6 +16,22 @@ class AppointmentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Filter advisor dropdown so only users with role='advisor' appear!
         self.fields['advisor'].queryset = User.objects.filter(role='advisor')
         self.fields['advisor'].widget.attrs.update({'class': 'form-select'})
+
+
+# 2. Case Log Form for Advisors
+class CaseLogForm(forms.ModelForm):
+    class Meta:
+        model = CaseLog
+        fields = ['appointment', 'notes']
+        widgets = {
+            'appointment': forms.Select(attrs={'class': 'form-select'}),
+            'notes': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Enter session notes, academic recommendations, or follow-ups...', 'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        advisor = kwargs.pop('advisor', None)
+        super().__init__(*args, **kwargs)
+        if advisor:
+            self.fields['appointment'].queryset = Appointment.objects.filter(advisor=advisor)

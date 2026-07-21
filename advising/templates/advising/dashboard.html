@@ -8,7 +8,7 @@
     {% if user.role == 'student' %}
         <div class="col-md-5 mb-4">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white font-weight-bold">
+                <div class="card-header bg-primary text-white fw-bold">
                     Book an Advising Session
                 </div>
                 <div class="card-body">
@@ -38,14 +38,14 @@
                             <label class="form-label">Meeting Link (Optional)</label>
                             {{ form.meeting_link }}
                         </div>
-                        <button type="submit" class="btn btn-success w-100">Schedule Appointment</button>
+                        <button type="submit" name="submit_appointment" class="btn btn-success w-100">Schedule Appointment</button>
                     </form>
                 </div>
             </div>
         </div>
 
         <div class="col-md-7">
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-dark text-white">
                     Your Scheduled Appointments
                 </div>
@@ -80,13 +80,30 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-secondary text-white">
+                    Advising Case Notes
+                </div>
+                <div class="card-body">
+                    {% for log in case_logs %}
+                        <div class="border-bottom pb-2 mb-2">
+                            <small class="text-muted float-end">{{ log.created_at|date:"M d, Y H:i" }}</small>
+                            <strong>Advisor {{ log.advisor.username }}:</strong>
+                            <p class="mb-0 text-dark">{{ log.notes }}</p>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted text-center mb-0">No case notes logged for your sessions yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
 
     <!-- ADVISOR VIEW -->
     {% else %}
-        <div class="col-md-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white">
+        <div class="col-md-7 mb-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white fw-bold">
                     Assigned Student Appointments
                 </div>
                 <div class="card-body p-0">
@@ -99,7 +116,6 @@
                                     <th>Time</th>
                                     <th>Category</th>
                                     <th>Mode</th>
-                                    <th>Meeting Link</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -110,22 +126,54 @@
                                         <td>{{ appt.time_slot }}</td>
                                         <td><span class="badge bg-info text-dark">{{ appt.issue_category }}</span></td>
                                         <td>{{ appt.appointment_mode }}</td>
-                                        <td>
-                                            {% if appt.meeting_link %}
-                                                <a href="{{ appt.meeting_link }}" target="_blank" class="btn btn-sm btn-outline-primary">Join</a>
-                                            {% else %}
-                                                <span class="text-muted">N/A</span>
-                                            {% endif %}
-                                        </td>
                                     </tr>
                                 {% empty %}
                                     <tr>
-                                        <td colspan="6" class="text-center py-4 text-muted">No student appointments requested yet.</td>
+                                        <td colspan="5" class="text-center py-4 text-muted">No student appointments requested yet.</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white">
+                    Logged Session History
+                </div>
+                <div class="card-body">
+                    {% for log in case_logs %}
+                        <div class="border-bottom pb-2 mb-2">
+                            <small class="text-muted float-end">{{ log.created_at|date:"M d, Y H:i" }}</small>
+                            <strong>Student: {{ log.student.get_full_name|default:log.student.username }}</strong>
+                            <p class="mb-0 text-dark">{{ log.notes }}</p>
+                        </div>
+                    {% empty %}
+                        <p class="text-muted text-center mb-0">No session notes recorded yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white fw-bold">
+                    Log Advising Session Notes
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Select Appointment</label>
+                            {{ case_log_form.appointment }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Session Notes / Action Items</label>
+                            {{ case_log_form.notes }}
+                        </div>
+                        <button type="submit" name="submit_caselog" class="btn btn-success w-100">Save Case Log</button>
+                    </form>
                 </div>
             </div>
         </div>
