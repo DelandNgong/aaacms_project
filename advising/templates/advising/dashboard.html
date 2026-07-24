@@ -6,7 +6,25 @@
 <div class="row">
     <!-- STUDENT VIEW -->
     {% if user.role == 'student' %}
+        <!-- Search & Booking Column -->
         <div class="col-md-5 mb-4">
+            <!-- Search & Filter Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-secondary text-white fw-bold">
+                    Search Available Slots
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'dashboard' %}" class="d-flex gap-2">
+                        <input type="text" name="search" class="form-control" placeholder="Search by Advisor or Date (YYYY-MM-DD)" value="{{ query }}">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        {% if query %}
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Clear</a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+
+            <!-- Booking Card -->
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white fw-bold">
                     Book an Advising Session
@@ -19,12 +37,8 @@
                             {{ form.advisor }}
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Date</label>
-                            {{ form.date }}
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Time Slot</label>
-                            {{ form.time_slot }}
+                            <label class="form-label">Select Available Slot</label>
+                            {{ form.slot }}
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Issue Category</label>
@@ -44,9 +58,10 @@
             </div>
         </div>
 
+        <!-- Appointments & Case Notes Column -->
         <div class="col-md-7">
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-dark text-white">
+                <div class="card-header bg-dark text-white fw-bold">
                     Your Scheduled Appointments
                 </div>
                 <div class="card-body p-0">
@@ -82,7 +97,7 @@
             </div>
 
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-secondary text-white">
+                <div class="card-header bg-secondary text-white fw-bold">
                     Advising Case Notes
                 </div>
                 <div class="card-body">
@@ -102,6 +117,7 @@
     <!-- ADVISOR VIEW -->
     {% else %}
         <div class="col-md-7 mb-4">
+            <!-- Assigned Appointments -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-primary text-white fw-bold">
                     Assigned Student Appointments
@@ -138,8 +154,32 @@
                 </div>
             </div>
 
+            <!-- Published Availability -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-info text-dark fw-bold">
+                    Your Published Availability Slots
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for slot in my_slots %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ slot.date }} | <strong>{{ slot.time_slot }}</strong></span>
+                                {% if slot.is_booked %}
+                                    <span class="badge bg-danger">Booked</span>
+                                {% else %}
+                                    <span class="badge bg-success">Available</span>
+                                {% endif %}
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-center text-muted py-3">No availability slots set yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Case Log History -->
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-dark text-white">
+                <div class="card-header bg-dark text-white fw-bold">
                     Logged Session History
                 </div>
                 <div class="card-body">
@@ -156,7 +196,30 @@
             </div>
         </div>
 
+        <!-- Sidebar Forms Column -->
         <div class="col-md-5">
+            <!-- Set Availability Form -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    Publish Availability Slot
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            {{ availability_form.date }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Time Slot</label>
+                            {{ availability_form.time_slot }}
+                        </div>
+                        <button type="submit" name="submit_availability" class="btn btn-warning w-100 font-weight-bold">Publish Slot</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Log Case Notes Form -->
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-success text-white fw-bold">
                     Log Advising Session Notes
