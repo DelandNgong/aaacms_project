@@ -3,6 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.contrib import messages
 from .models import Appointment, CaseLog, AvailabilitySlot, User
 from .forms import AppointmentForm, CaseLogForm, AvailabilityForm
 
@@ -11,6 +12,7 @@ class CustomLoginView(LoginView):
 
 def user_logout(request):
     logout(request)
+    messages.info(request, "You have been logged out successfully.")
     return redirect('login')
 
 @login_required
@@ -52,7 +54,11 @@ def dashboard(request):
                     slot.save()
 
                 appointment.save()
+                advisor_name = appointment.advisor.get_full_name() or appointment.advisor.username
+                messages.success(request, f"Appointment successfully scheduled with {advisor_name}!")
                 return redirect('dashboard')
+            else:
+                messages.error(request, "Please correct the errors below to complete your booking.")
         else:
             form = AppointmentForm()
 
@@ -78,7 +84,10 @@ def dashboard(request):
                 slot = availability_form.save(commit=False)
                 slot.advisor = user
                 slot.save()
+                messages.success(request, f"Availability slot for {slot.date} ({slot.time_slot}) published successfully!")
                 return redirect('dashboard')
+            else:
+                messages.error(request, "Failed to publish availability slot. Please check your input.")
         else:
             availability_form = AvailabilityForm()
 
@@ -90,7 +99,11 @@ def dashboard(request):
                 case_log.advisor = user
                 case_log.student = case_log.appointment.student
                 case_log.save()
+                student_name = case_log.student.get_full_name() or case_log.student.username
+                messages.success(request, f"Case log for {student_name} recorded successfully!")
                 return redirect('dashboard')
+            else:
+                messages.error(request, "Failed to save case log. Please check your input.")
         else:
             case_log_form = CaseLogForm(advisor=user)
 
