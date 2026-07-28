@@ -20,6 +20,7 @@ def dashboard(request):
     user = request.user
     case_log_form = None
     availability_form = None
+    form = None
     
     # ------------------------------------
     # STUDENT WORKFLOW
@@ -44,9 +45,13 @@ def dashboard(request):
                 appointment = form.save(commit=False)
                 appointment.student = user
                 
-                # Link slot details
+                # Link slot details & check for double-booking race condition
                 slot = appointment.slot
                 if slot:
+                    if slot.is_booked:
+                        messages.error(request, "Sorry! That availability slot was just booked by another student. Please select a different slot.")
+                        return redirect('dashboard')
+
                     appointment.date = slot.date
                     appointment.time_slot = slot.time_slot
                     appointment.advisor = slot.advisor

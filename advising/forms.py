@@ -20,15 +20,14 @@ class AppointmentForm(forms.ModelForm):
         widgets = {
             'advisor': forms.Select(attrs={'class': 'form-select'}),
             'slot': forms.Select(attrs={'class': 'form-select'}),
-            'issue_category': forms.TextInput(attrs={'placeholder': 'e.g., Academic Guidance, Course Registration', 'class': 'form-control'}),
+            'issue_category': forms.Select(attrs={'class': 'form-select'}),
             'appointment_mode': forms.Select(attrs={'class': 'form-select'}),
-            'meeting_link': forms.URLInput(attrs={'placeholder': 'Optional Google Meet or Teams link', 'class': 'form-control'}),
+            'meeting_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://zoom.us/... (optional)'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['advisor'].queryset = User.objects.filter(role='advisor')
-        # Show unbooked slots by default
+        # Dynamic Queryset: Only allow selection of unbooked slots
         self.fields['slot'].queryset = AvailabilitySlot.objects.filter(is_booked=False)
 
 
