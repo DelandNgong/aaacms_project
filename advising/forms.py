@@ -27,8 +27,11 @@ class AppointmentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Dynamic Queryset: Only allow selection of unbooked slots
+        # Filter available unbooked slots
         self.fields['slot'].queryset = AvailabilitySlot.objects.filter(is_booked=False)
+        
+        # Filter advisors dropdown to only show Advisor users
+        self.fields['advisor'].queryset = User.objects.filter(role='advisor')
 
 
 # 3. Case Log Form for Advisors

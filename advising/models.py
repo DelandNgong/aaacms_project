@@ -32,23 +32,27 @@ class AvailabilitySlot(models.Model):
 
 # 3. Appointment Model
 class Appointment(models.Model):
-    MODE_CHOICES = (
-        ('In-Person', 'In-Person'),
-        ('Virtual', 'Virtual'),
-    )
-    student = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'student'}, related_name='student_appointments')
-    advisor = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'advisor'}, related_name='advisor_appointments')
+    # Category Choices Definition
+    CATEGORY_CHOICES = [
+        ('Academic Advising', 'Academic Advising'),
+        ('Course Registration', 'Course Registration'),
+        ('Graduation Audit', 'Graduation Audit'),
+        ('Career Guidance', 'Career Guidance'),
+        ('General Inquiry', 'General Inquiry'),
+    ]
+
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='student_appointments')
+    advisor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='advisor_appointments')
     slot = models.ForeignKey(AvailabilitySlot, on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateField()
     time_slot = models.CharField(max_length=50)
-    issue_category = models.CharField(max_length=100)
-    appointment_mode = models.CharField(max_length=20, choices=MODE_CHOICES, default='In-Person')
-    meeting_link = models.URLField(blank=True, null=True)
+    
+    # Ensure choices=CATEGORY_CHOICES is set
+    issue_category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, default='Academic Advising')
+    
+    appointment_mode = models.CharField(max_length=50, choices=[('In-Person', 'In-Person'), ('Virtual', 'Virtual')], default='In-Person')
+    meeting_link = models.URLField(max_length=500, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Appointment: {self.student.username} with {self.advisor.username} on {self.date}"
-
 
 # 4. Case Log Model (With Unique related_names Fixed)
 class CaseLog(models.Model):
