@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Appointment, CaseLog
+from .models import User, Appointment, CaseLog, AvailabilitySlot
 
 # 1. Custom User Admin display
 class CustomUserAdmin(UserAdmin):
@@ -14,3 +14,4 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Appointment)
 admin.site.register(CaseLog)
+admin.site.register(AvailabilitySlot)
